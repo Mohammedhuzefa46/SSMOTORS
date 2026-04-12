@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Details — SS Trusted Motors</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+<div id="page-content">
+  <div style="padding:200px 0;text-align:center;">
+    <div class="loading-spinner" style="margin:0 auto 20px;"></div>
+    <div style="font-family:var(--font-condensed);letter-spacing:.15em;color:var(--muted);text-transform:uppercase;font-size:.85rem;">Loading vehicle details…</div>
+  </div>
+</div>
+<div id="footer-placeholder"></div>
+<script src="js/partials.js"></script>
+<script src="js/main.js"></script>
+<script>
+(async function(){
+  const params = new URLSearchParams(location.search);
+  const id = parseInt(params.get('id'));
+  const type = params.get('type')||'car';
+  const isAntique = type==='antique';
+  const dataFile = isAntique ? 'data/antiques.json' : 'data/cars.json';
+  const backLink = isAntique ? 'antiques.html' : 'inventory.html';
+  const backLabel = isAntique ? 'Antique Collection' : 'Inventory';
+
+  let car;
+  try{
+    const data = await SS.fetchJSON(dataFile);
+    car = data.find(c=>c.id===id);
+  }catch(e){}
+
+  if(!car){
+    document.getElementById('page-content').innerHTML=`<section style="padding:200px 0;text-align:center;"><div style="font-family:var(--font-display);font-size:3rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;">404</div><p style="color:var(--muted);margin-bottom:24px;">Vehicle not found.</p><a href="${backLink}" class="btn btn-primary">← Back to ${backLabel}</a></section>`;
+    return;
+  }
+
+  document.title = `${car.name} ${car.year} — SS Trusted Motors`;
+
+  const qrUrl = `${location.origin}${location.pathname}?id=${car.id}&type=${type}`;
+  const featuresHTML = car.features.map(f=>`<span class="feature-tag">${f}</span>`).join('');
+  const isPremium = car.subcategory==='premium';
+  const premiumBadge = isPremium ? `<span style="font-family:var(--font-condensed);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);background:rgba(184,145,42,.1);border:1px solid var(--border-mid);border-radius:4px;padding:3px 10px;margin-left:10px;">Premium</span>` : '';
+
+  const html = `
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content">
+      <div class="page-breadcrumb">
+        <a href="index.html">Home</a><span>›</span>
+        <a href="${backLink}">${backLabel}</a><span>›</span>
+        <span>${car.name}</span>
+      </div>
+      ${car.badge?`<span class="badge ${isAntique?'badge-gold':''}" style="margin-bottom:14px;display:inline-block;">${car.badge}</span>`:''}
+      <h1 style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3.8rem);letter-spacing:.03em;line-height:1;color:var(--text);">${car.name}${premiumBadge}</h1>
+      <div style="font-family:var(--font-condensed);font-size:1rem;letter-spacing:.1em;color:var(--gold);margin-top:8px;">${car.year} · ${car.category} · ${car.color}</div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:60px 0 100px;">
+  <div class="container">
+    <div class="car-details-layout">
+      <div>
+        <!-- Gallery -->
+        <div class="car-details-gallery">
+          <img src="${car.image}" alt="${car.name}" class="car-details-main-img">
+          <div style="padding:16px 22px;border-top:1px solid var(--border);background:var(--bg-warm);">
+            <div style="font-family:var(--font-condensed);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Photo · ${car.year} ${car.name} · ${car.color}</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div style="margin-top:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-sm);">
+          <h3 style="font-family:var(--font-condensed);font-size:.78rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--text);margin-bottom:14px;">About This Vehicle</h3>
+          <p class="description-block">${car.description}</p>
+          ${isAntique&&car.heritage?`<div style="border-top:1px solid var(--border);margin-top:18px;padding-top:18px;"><div style="font-family:var(--font-condensed);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Heritage Note</div><p style="font-style:italic;color:var(--muted);font-size:.92rem;line-height:1.7;">"${car.heritage}"</p></div>`:''}
+        </div>
+
+        <!-- Features -->
+        <div style="margin-top:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-sm);">
+          <h3 style="font-family:var(--font-condensed);font-size:.78rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--text);margin-bottom:18px;">Key Features</h3>
+          <div class="features-list">${featuresHTML}</div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="car-details-info">
+        <!-- Price -->
+        <div class="info-card">
+          <div class="details-price-block">
+            <div class="details-price-label">Asking Price</div>
+            <div class="details-condition">${car.condition} Condition</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <a href="contact.html?car=${encodeURIComponent(car.name+' '+car.year)}" class="btn btn-primary" style="justify-content:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.08 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14h0v2.92z"/></svg>
+              Enquire Now
+            </a>
+            <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(car.name+' '+car.year)}" target="_blank" class="contact-whatsapp" style="border-radius:var(--radius);text-decoration:none;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+              WhatsApp Us
+            </a>
+            <a href="tel:+919876543210" class="btn btn-outline" style="justify-content:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.08 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14h0v2.92z"/></svg>
+              +91 98765 43210
+            </a>
+          </div>
+        </div>
+
+        <!-- Specs -->
+        <div class="info-card">
+          <h3 style="font-family:var(--font-condensed);font-size:.78rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--text);margin-bottom:18px;">Specifications</h3>
+          <div class="specs-grid">
+            <div class="spec-item"><div class="spec-label">Year</div><div class="spec-value">${car.year}</div></div>
+            <div class="spec-item"><div class="spec-label">Fuel</div><div class="spec-value">${car.fuel}</div></div>
+            <div class="spec-item"><div class="spec-label">Transmission</div><div class="spec-value">${car.transmission}</div></div>
+            <div class="spec-item"><div class="spec-label">Mileage</div><div class="spec-value">${car.mileage}</div></div>
+            <div class="spec-item"><div class="spec-label">Engine</div><div class="spec-value">${car.engine}</div></div>
+            <div class="spec-item"><div class="spec-label">Seats</div><div class="spec-value">${car.seats} Seater</div></div>
+            <div class="spec-item"><div class="spec-label">Colour</div><div class="spec-value">${car.color}</div></div>
+            <div class="spec-item"><div class="spec-label">Condition</div><div class="spec-value">${car.condition}</div></div>
+          </div>
+        </div>
+
+        <!-- QR -->
+        <div class="info-card">
+          <div class="qr-section">
+            <div style="font-family:var(--font-condensed);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Share This Listing</div>
+            <canvas id="qr-canvas" style="border-radius:10px;display:block;margin:0 auto 12px;"></canvas>
+            <div class="qr-note">Scan to view on mobile</div>
+            <button onclick="copyLink()" class="btn btn-outline btn-sm" style="margin-top:12px;width:100%;justify-content:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>`;
+
+  document.getElementById('page-content').innerHTML = html;
+  const canvas = document.getElementById('qr-canvas');
+  if(canvas) SS.generateQRCanvas(qrUrl, canvas);
+  window.copyLink = ()=>{ navigator.clipboard.writeText(qrUrl).then(()=>alert('Link copied!')); };
+})();
+</script>
+</body>
+</html>
