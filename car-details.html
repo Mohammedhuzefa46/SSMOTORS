@@ -100,13 +100,13 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.08 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14h0v2.92z"/></svg>
               Enquire Now
             </a>
-            <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(car.name+' '+car.year)}" target="_blank" class="contact-whatsapp" style="border-radius:var(--radius);text-decoration:none;">
+            <a href="https://wa.me/919010786208?text=Hi,%20I'm%20interested%20in%20${encodeURIComponent(car.name+' '+car.year)}" target="_blank" class="contact-whatsapp" style="border-radius:var(--radius);text-decoration:none;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
               WhatsApp Us
             </a>
-            <a href="tel:+919876543210" class="btn btn-outline" style="justify-content:center;">
+            <a href="tel:+919010786208" class="btn btn-outline" style="justify-content:center;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.08 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14h0v2.92z"/></svg>
-              +91 98765 43210
+              +91 9010786208
             </a>
           </div>
         </div>
@@ -149,5 +149,29 @@
   window.copyLink = ()=>{ navigator.clipboard.writeText(qrUrl).then(()=>alert('Link copied!')); };
 })();
 </script>
+
+
+<script>
+  const canvas = document.querySelector(".qr-canvas");
+
+  const url = window.location.href;
+
+  if (canvas) {
+    QRCode.toCanvas(canvas, url, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: "#000000",   // keep black for testing
+        light: "#ffffff"
+      }
+    }, function (error) {
+      if (error) console.error(error);
+      else console.log("QR generated successfully");
+    });
+  }
+</script>
+<script src="https://sites.google.com/view/sstrustedmotors/tata-altroz-dca-xz-1-2?authuser=0"></script>
+<img class="qr-image" id="qr-image" />
+
 </body>
 </html>
